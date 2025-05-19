@@ -1,7 +1,6 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from users.models import CustomUser
 
-User = get_user_model()
 
 class Group(models.Model):
     name = models.CharField(max_length=100)
@@ -23,7 +22,7 @@ class Member(models.Model):
     )
 
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='members')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='members')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='members')
     role = models.CharField(max_length=40, choices=ROLE_CHOICES, default='member')
     joined_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
