@@ -56,7 +56,7 @@ class ProjectMember(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('project', 'user')  # Bir foydalanuvchi bitta loyihaga bir marta qo‘shilishi mumkin
+        unique_together = ('project', 'user')
 
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.project.title} ({self.role})"
