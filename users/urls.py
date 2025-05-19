@@ -1,17 +1,22 @@
 from django.urls import path
-from .views import (
-    UserProfileDetailView, MyProfileView, FollowUserView, UnfollowUserView,
-    FollowersListView, FollowingListView,
-    CurrentUserView, UserDetailView,
+from . import views
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
 )
 
+
 urlpatterns = [
-    path('profiles/me/', MyProfileView.as_view(), name='my-profile'),
-    path('profiles/<int:user__id>/', UserProfileDetailView.as_view(), name='user-profile'),
-    path('profiles/<int:user_id>/follow/', FollowUserView.as_view(), name='follow-user'),
-    path('profiles/<int:user_id>/unfollow/', UnfollowUserView.as_view(), name='unfollow-user'),
-    path('profiles/<int:user_id>/followers/', FollowersListView.as_view(), name='followers-list'),
-    path('profiles/<int:user_id>/following/', FollowingListView.as_view(), name='following-list'),
-    path('users/me/', CurrentUserView.as_view(), name='user-me'),
-    path('users/<int:id>/', UserDetailView.as_view(), name='user-detail'),
+    path('auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/register/', views.UserRegistrationView.as_view(), name='user-register'),
+    path('auth/logout/', views.LogoutView.as_view(), name='logout'),
+    path('profiles/me/', views.CurrentUserProfileView.as_view(), name='profile-me'),
+    path('profiles/<int:user_id>/', views.ProfileByIdView.as_view(), name='profile-detail'),
+    path('profiles/<int:user_id>/follow/', views.toggle_follow, name='profile-follow'),
+    path('profiles/<int:user_id>/unfollow/', views.toggle_follow, name='profile-unfollow'),
+    path('profiles/<int:user_id>/followers/', views.FollowersListView.as_view(), name='profile-followers'),
+    path('profiles/<int:user_id>/following/', views.FollowingListView.as_view(), name='profile-following'),
+    path('users/me/', views.CurrentUserView.as_view(), name='user-me'),
+    path('users/<int:id>/', views.UserDetailView.as_view(), name='user-detail'),
 ]
