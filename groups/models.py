@@ -1,5 +1,6 @@
 from django.db import models
 from users.models import CustomUser
+from core.models import BaseModel
 
 
 class Group(models.Model):
@@ -14,7 +15,7 @@ class Group(models.Model):
         return self.name
 
 
-class Member(models.Model):
+class Member(BaseModel):
     ROLE_CHOICES = (
         ('leader', 'Leader'),
         ('member', 'Member'),
