@@ -11,7 +11,6 @@ class ExperimentTests(APITestCase):
 
     def setUp(self):
         self.user = CustomUser.objects.create_user(
-            username='testuser',
             email='testuser@example.com',
             password='password'
         )
