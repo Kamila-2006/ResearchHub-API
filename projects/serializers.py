@@ -1,14 +1,18 @@
 from rest_framework import serializers
 from .models import Project, ProjectMember
 from users.serializers import CustomUserSerializer
+from users.models import CustomUser
 
 
 class ProjectMemberSerializer(serializers.ModelSerializer):
-    user = CustomUserSerializer(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    user_detail = CustomUserSerializer(source='user', read_only=True)
+    project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all())
 
     class Meta:
         model = ProjectMember
-        fields = ['id', 'user', 'role', 'joined_at', 'is_active']
+        fields = ['id', 'user', 'user_detail', 'project', 'role', 'joined_at', 'is_active']
+        extra_kwargs = {'joined_at': {'read_only': True}, 'is_active': {'default': True}}
 
 
 class ProjectSerializer(serializers.ModelSerializer):

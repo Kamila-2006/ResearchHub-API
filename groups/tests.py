@@ -8,7 +8,6 @@ from datetime import date
 class GroupAPITest(APITestCase):
 
     def setUp(self):
-        # Создаем 2 пользователя
         self.leader = CustomUser.objects.create_user(
             email='leader@example.com', password='pass123', first_name='Leader', last_name='User'
         )
@@ -19,10 +18,8 @@ class GroupAPITest(APITestCase):
             email='other@example.com', password='pass123', first_name='Other', last_name='User'
         )
 
-        # Аутентификация лидера по умолчанию
         self.client.force_authenticate(user=self.leader)
 
-        # Данные для создания группы
         self.group_data = {
             'name': 'Test Group',
             'description': 'Group description',
@@ -31,7 +28,6 @@ class GroupAPITest(APITestCase):
             'website': 'https://example.com',
         }
 
-        # Создаем группу и добавляем членов
         self.group = Group.objects.create(**self.group_data)
         Member.objects.create(group=self.group, user=self.leader, role='leader', is_active=True)
         Member.objects.create(group=self.group, user=self.member_user, role='member', is_active=True)
@@ -43,8 +39,7 @@ class GroupAPITest(APITestCase):
         self.assertTrue(len(response.data['results']) >= 1)
 
     def test_group_create_by_authenticated_user(self):
-        # Любой аутентифицированный может создавать группу
-        self.client.force_authenticate(user=self.member_user)  # даже не лидер
+        self.client.force_authenticate(user=self.member_user)
         new_group_data = {
             'name': 'New Group',
             'description': 'New desc',

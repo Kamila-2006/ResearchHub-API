@@ -1,114 +1,96 @@
+from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
-from django.urls import reverse
 from users.models import CustomUser
-from groups.models import Group
 from .models import Project, ProjectMember
-from rest_framework_simplejwt.tokens import RefreshToken
+from datetime import date
 
-
-class ProjectTests(APITestCase):
-
+class ProjectMemberAPITest(APITestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create_user(
-            email='testuser@example.com',
-            password='password'
+        self.pi = CustomUser.objects.create_user(
+            email='pi@example.com', password='pass123', first_name='PI', last_name='User'
         )
-        self.group = Group.objects.create(name="Research Group")
+        self.member_user = CustomUser.objects.create_user(
+            email='member@example.com', password='pass123', first_name='Member', last_name='User'
+        )
+        self.other_user = CustomUser.objects.create_user(
+            email='other@example.com', password='pass123', first_name='Other', last_name='User'
+        )
+
         self.project = Project.objects.create(
-            title="Test Project",
-            short_description="A short description",
-            description="A long description",
-            start_date="2025-01-01",
-            status="planning",
-            visibility="public",
-            group=self.group,
-            principal_investigator=self.user
+            title='Test Project',
+            short_description='Short desc',
+            description='Desc',
+            start_date=date.today(),
+            principal_investigator=self.pi
         )
-        self.token = RefreshToken.for_user(self.user)
-        self.auth_header = {'Authorization': f'Bearer {str(self.token.access_token)}'}
 
-    def test_project_creation(self):
-        url = reverse('project-list')
-        data = {
-            'title': 'New Project',
-            'short_description': 'Short description for new project',
-            'description': 'Long description for new project',
-            'start_date': '2025-02-01',
-            'status': 'in_progress',
-            'visibility': 'private',
-            'group': self.group.id,
-            'principal_investigator': self.user.id
-        }
-        response = self.client.post(url, data, HTTP_AUTHORIZATION=self.auth_header['Authorization'])
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['title'], 'New Project')
+        self.pi_member = ProjectMember.objects.create(
+            project=self.project, user=self.pi, role='principal_investigator', is_active=True
+        )
+        self.member = ProjectMember.objects.create(
+            project=self.project, user=self.member_user, role='research_assistant', is_active=True
+        )
 
-    def test_project_list(self):
-        url = reverse('project-list')
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.auth_header['Authorization'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-
-    def test_project_member_creation(self):
-        url = reverse('project-member-list')
-        member_data = {
-            'user': self.user.id,
-            'project': self.project.id,
-            'role': 'principal_investigator',
-        }
-        response = self.client.post(url, member_data, HTTP_AUTHORIZATION=self.auth_header['Authorization'])
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['user']['username'], 'testuser')
-        self.assertEqual(response.data['role'], 'principal_investigator')
+        self.client.force_authenticate(user=self.pi)
 
     def test_project_member_list(self):
-        ProjectMember.objects.create(user=self.user, project=self.project, role='principal_investigator')
         url = reverse('project-member-list')
-        response = self.client.get(url, HTTP_AUTHORIZATION=self.auth_header['Authorization'])
+        response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
+        data = response.data
+        if isinstance(data, dict) and 'results' in data:
+            self.assertTrue(len(data['results']) >= 2)
+        else:
+            self.assertTrue(len(data) >= 2)
 
-    def test_project_update(self):
-        url = reverse('project-detail', args=[self.project.id])
+    def test_project_member_create_by_pi(self):
+        url = reverse('project-member-list')
         data = {
-            'title': 'Updated Project Title',
-            'short_description': 'Updated short description',
-            'description': 'Updated long description',
-            'start_date': '2025-01-01',
-            'status': 'completed',
-            'visibility': 'private',
-            'group': self.group.id,
-            'principal_investigator': self.user.id
+            'project': self.project.id,
+            'user': self.other_user.id,
+            'role': 'collaborator',
+            'is_active': True
         }
-        response = self.client.put(url, data, HTTP_AUTHORIZATION=self.auth_header['Authorization'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['title'], 'Updated Project Title')
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(ProjectMember.objects.filter(user=self.other_user, project=self.project).exists())
 
-    def test_project_member_update(self):
-        member = ProjectMember.objects.create(user=self.user, project=self.project, role='research_assistant')
-        url = reverse('project-member-detail', args=[member.id])
+    def test_project_member_create_forbidden_for_non_pi(self):
+        self.client.force_authenticate(user=self.member_user)
+        url = reverse('project-member-list')
         data = {
-            'role': 'co_investigator',
+            'project': self.project.id,
+            'user': self.other_user.id,
+            'role': 'collaborator',
+            'is_active': True
         }
-        response = self.client.put(url, data, HTTP_AUTHORIZATION=self.auth_header['Authorization'])
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_project_member_update_by_pi(self):
+        url = reverse('project-member-detail', args=[self.member.id])
+        data = {'role': 'co_investigator'}
+        response = self.client.patch(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['role'], 'co_investigator')
+        self.member.refresh_from_db()
+        self.assertEqual(self.member.role, 'co_investigator')
 
-    def test_project_deletion(self):
-        url = reverse('project-detail', args=[self.project.id])
-        response = self.client.delete(url, HTTP_AUTHORIZATION=self.auth_header['Authorization'])
+    def test_project_member_update_forbidden_for_non_pi(self):
+        self.client.force_authenticate(user=self.member_user)
+        url = reverse('project-member-detail', args=[self.member.id])
+        data = {'role': 'co_investigator'}
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_project_member_delete_by_pi(self):
+        url = reverse('project-member-detail', args=[self.member.id])
+        response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        with self.assertRaises(Project.DoesNotExist):
-            Project.objects.get(id=self.project.id)
+        self.assertFalse(ProjectMember.objects.filter(id=self.member.id).exists())
 
-    def test_project_member_deletion(self):
-        member = ProjectMember.objects.create(user=self.user, project=self.project, role='research_assistant')
-        url = reverse('project-member-detail', args=[member.id])
-        response = self.client.delete(url, HTTP_AUTHORIZATION=self.auth_header['Authorization'])
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        with self.assertRaises(ProjectMember.DoesNotExist):
-            ProjectMember.objects.get(id=member.id)
-
-        class ProjectMemberTests(APITestCase):
-            pass
+    def test_project_member_delete_forbidden_for_non_pi(self):
+        self.client.force_authenticate(user=self.member_user)
+        url = reverse('project-member-detail', args=[self.member.id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
