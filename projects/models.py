@@ -4,6 +4,16 @@ from users.models import CustomUser
 from core.models import BaseModel
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=200)
+
+    class Meta:
+        verbose_name = "Tag"
+        verbose_name_plural = "Tags"
+
+    def __str__(self):
+        return self.name
+
 
 class Project(BaseModel):
     STATUS_CHOICES = [
@@ -30,7 +40,7 @@ class Project(BaseModel):
     funding_currency = models.CharField(max_length=10, null=True, blank=True)
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     principal_investigator = models.ForeignKey('users.CustomUser', related_name='led_projects', on_delete=models.SET_NULL, null=True, blank=True)
-    # tags = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField(Tag, blank=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
