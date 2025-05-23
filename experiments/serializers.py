@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Experiment
 from users.serializers import UserProfileSerializer
+
+
 class ExperimentSerializer(serializers.ModelSerializer):
     collaborators = UserProfileSerializer(many=True, read_only=True)
 

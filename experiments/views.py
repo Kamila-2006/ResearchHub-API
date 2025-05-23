@@ -1,13 +1,14 @@
-from rest_framework import viewsets, permissions, filters
+from rest_framework import viewsets, filters
 from .models import Experiment
 from .serializers import ExperimentSerializer
 from .paginations import ExperimentPagination
+from .permissions import IsExperimentCreatorOrCollaborator
 
 
 class ExperimentViewSet(viewsets.ModelViewSet):
     queryset = Experiment.objects.all()
     serializer_class = ExperimentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsExperimentCreatorOrCollaborator]
     pagination_class = ExperimentPagination
 
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]

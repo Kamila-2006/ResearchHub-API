@@ -21,8 +21,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['followers_count', 'following_count', 'projects_count', 'publications_count', 'projects']
 
     def get_projects(self, obj):
-        projects = obj.projects
-        return [project.id for project in projects]
+        if hasattr(obj, 'projects'):
+            return [project.id for project in obj.projects]
+        elif hasattr(obj, 'profile'):
+            return [project.id for project in obj.profile.projects]
+        return []
 
 
 
