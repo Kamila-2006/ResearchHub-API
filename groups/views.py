@@ -1,4 +1,5 @@
 from rest_framework import viewsets, filters
+from rest_framework.exceptions import PermissionDenied
 from .models import Group, Member
 from .serializers import GroupSerializer, MemberSerializer
 from .pagination import GroupPagination, MemberPagination
@@ -22,3 +23,10 @@ class MemberViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['user__full_name', 'role']
     ordering_fields = ['joined_at', 'role']
+
+    def perform_create(self, serializer):
+        group = serializer.validated_data.get('group')
+        user = self.request.user
+        if not group.members.filter(user=user, role='leader', is_active=True).exists():
+            raise PermissionDenied("Only group leaders can add members.")
+        serializer.save()
