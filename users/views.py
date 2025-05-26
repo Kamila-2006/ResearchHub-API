@@ -90,7 +90,7 @@ class CurrentUserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
 
     def get_object(self):
-        return self.request.user.profile
+        return get_object_or_404(UserProfile, user=self.request.user)
 
 
 class ProfileByIdView(generics.RetrieveAPIView):
@@ -112,14 +112,14 @@ def toggle_follow(request, user_id):
         return Response({"message": "You cannot follow/unfollow yourself!"}, status=status.HTTP_400_BAD_REQUEST)
 
     profile = user.profile
-    if target_user in profile.following.all():
-        profile.following.remove(target_user)
+    target_profile = target_user.profile  # shu yerda profilni olish kerak
+
+    if target_profile in profile.following.all():
+        profile.following.remove(target_profile)
         return Response({"message": "Unfollowed successfully!"})
     else:
-        profile.following.add(target_user)
+        profile.following.add(target_profile)
         return Response({"message": "Followed successfully!"})
-
-
 
 
 class BaseFollowListView(APIView):
@@ -131,7 +131,7 @@ class BaseFollowListView(APIView):
         profile = get_object_or_404(UserProfile, user=user)
 
         if self.relation == 'followers':
-            data = UserProfile.objects.filter(following=user)
+            data = UserProfile.objects.filter(following__user=user)
         else:
             data = profile.following.all()
 
