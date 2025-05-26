@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import CustomUser
-from projects.models import Project
+from projects.models import Project, Tag
 
 
 class Experiment(models.Model):
@@ -19,7 +19,7 @@ class Experiment(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planned')
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='experiments')
     collaborators = models.ManyToManyField(CustomUser, related_name='experiments')
-    #tags = models.ManyToManyField(Tag, related_name='experiments')
+    tags = models.ManyToManyField(Tag, related_name='experiments')
 
     def __str__(self):
         return self.title
