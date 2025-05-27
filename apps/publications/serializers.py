@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Publication
 from findings.models import Finding
 from projects.models import Project
-from apps.users.models import CustomUser
+from users.models import CustomUser
 
 class PublicationSerializer(serializers.ModelSerializer):
     author_ids = serializers.PrimaryKeyRelatedField(many=True, source='authors', queryset=CustomUser.objects.all())

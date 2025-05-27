@@ -1,7 +1,7 @@
 from django.db import models
 from projects.models import Project
 from findings.models import Finding
-from apps.users.models import CustomUser
+from users.models import CustomUser
 
 
 class Publication(models.Model):
