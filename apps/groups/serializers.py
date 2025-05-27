@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Group, Member
-from apps.users.models import CustomUser
+from users.models import CustomUser
 
 class MemberSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())

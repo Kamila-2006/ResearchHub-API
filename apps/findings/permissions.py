@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from apps.experiments.models import Experiment
+from experiments.models import Experiment
 
 
 class IsFindingPIOrReadOnly(permissions.BasePermission):

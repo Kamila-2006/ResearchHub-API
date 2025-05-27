@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import JSONField
-from apps.core.models import BaseModel
+from core.models import BaseModel
 from .user_manager import CustomUserManager
 
 
@@ -83,7 +83,7 @@ class UserProfile(BaseModel):
 
     @property
     def projects(self):
-        from apps.projects import Project
+        from projects.models import Project
         return Project.objects.filter(members__user=self.user).distinct()
 
     def __str__(self):

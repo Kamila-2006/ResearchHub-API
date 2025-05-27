@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Experiment
-from apps.users.serializers import UserProfileSerializer
+from users.serializers import UserProfileSerializer
 
 
 class ExperimentSerializer(serializers.ModelSerializer):

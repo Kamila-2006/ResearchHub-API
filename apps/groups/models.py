@@ -1,6 +1,6 @@
 from django.db import models
-from apps.users.models import CustomUser
-from apps.core.models import BaseModel
+from users.models import CustomUser
+from core.models import BaseModel
 
 
 class Group(models.Model):

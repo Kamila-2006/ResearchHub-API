@@ -2,8 +2,8 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 from datetime import date
-from apps.users.models import CustomUser
-from apps.projects.models import Project
+from users.models import CustomUser
+from projects.models import Project
 from .models import Experiment
 
 

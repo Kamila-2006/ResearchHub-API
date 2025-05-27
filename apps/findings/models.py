@@ -1,7 +1,7 @@
 from django.db import models
-from apps.core.models import BaseModel
-from apps.projects.models import Tag
-from apps.experiments.models import Experiment
+from core.models import BaseModel
+from projects.models import Tag
+from experiments.models import Experiment
 
 class Finding(BaseModel):
     SIGNIFICANCE_CHOICES = [

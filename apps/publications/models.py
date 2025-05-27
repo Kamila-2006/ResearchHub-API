@@ -1,6 +1,6 @@
 from django.db import models
-from apps.projects import Project
-from apps.findings import Finding
+from projects.models import Project
+from findings.models import Finding
 from apps.users.models import CustomUser
 
 

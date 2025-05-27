@@ -1,6 +1,6 @@
 from django.db import models
-from apps.users.models import CustomUser
-from apps.projects.models import Project, Tag
+from users.models import CustomUser
+from projects.models import Project, Tag
 
 
 class Experiment(models.Model):

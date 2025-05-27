@@ -1,7 +1,7 @@
 from .models import CustomUser, UserProfile
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from apps.users.exceptions import TokenExpiredOrInvalid
+from users.exceptions import TokenExpiredOrInvalid
 from django.core.cache import cache
 from django.core.mail import send_mail
 from django.conf import settings

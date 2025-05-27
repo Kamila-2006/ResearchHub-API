@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from apps.projects.models import Project
+from projects.models import Project
 
 class IsExperimentCreatorOrCollaborator(permissions.BasePermission):
     def has_permission(self, request, view):

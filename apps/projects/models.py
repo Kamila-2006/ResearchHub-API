@@ -1,7 +1,7 @@
 from django.db import models
-from apps.groups.models import Group
-from apps.users.models import CustomUser
-from apps.core.models import BaseModel
+from groups.models import Group
+from users.models import CustomUser
+from core.models import BaseModel
 
 
 class Tag(models.Model):

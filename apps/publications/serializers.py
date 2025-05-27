@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Publication
-from .models import Finding
-from .models import Project
+from findings.models import Finding
+from projects.models import Project
 from apps.users.models import CustomUser
 
 class PublicationSerializer(serializers.ModelSerializer):

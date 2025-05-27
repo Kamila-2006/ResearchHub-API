@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Project, ProjectMember
-from apps.users.serializers import CustomUserSerializer
-from apps.users.models import CustomUser
+from users.serializers import CustomUserSerializer
+from users.models import CustomUser
 
 
 class ProjectMemberSerializer(serializers.ModelSerializer):
