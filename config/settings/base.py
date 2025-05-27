@@ -33,7 +33,6 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "common",
     "core",
     "users",
     "groups",
