@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from users.models import CustomUser
 from .models import Group, Member
-from datetime import date
+
 
 class GroupAPITest(APITestCase):
 

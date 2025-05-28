@@ -17,7 +17,7 @@ class FindingViewSet(viewsets.ModelViewSet):
         base_qs = Finding.objects.all()
         if not user.is_authenticated:
             return base_qs.filter(visibility='public')
-        from experiments.models import Experiment
+        from apps.experiments.models import Experiment
         exp_ids = Experiment.objects.filter(
             models.Q(project__principal_investigator=user) | models.Q(collaborators=user)
         ).values_list('id', flat=True)
